@@ -370,7 +370,8 @@ page("page-10", 10, `<h2>Roll Call: Best Class for Every Character</h2>
  <div><div class="n">${esc(r.name)}${r.extra > 0 && r.as !== "Boss-killer" ? ` <span title="~${r.extra} extra levels of training to meet the exam ranks">⚠</span>` : ""}</div><div class="c">${esc(r.cls)}<span class="tag ${r.as === "Support" ? "u" : r.as === "Boss-killer" ? "b" : ""}">${r.as}</span></div>${r.why ? `<div class="why">for ${esc(r.why)}</div>` : ""}</div>
  <div class="f"><span class="pc">top ${Math.max(1, 100 - r.pct)}%</span><span class="fs">fitness ${r.fit.toFixed(0)}</span></div></div>`).join("")}</div>
 <div class="sec" style="margin-top:18px">The roll call at a glance</div>
-${rosterChart(D.page10)}`);
+${rosterChart(D.page10)}
+<p class="sub">Not modeled: The Calamity's Locktouch (opens chests without keys) and Ultimate Search (better search results). They pay off in loot and economy, not in boss fights, map clears or support, so they don't move these ratings. That is part of why The Calamity rarely tops the roll call.</p>`);
 // ---- honors (bottom of the document)
 (() => { const h = D.honors || []; if (!h.length) return;
   const big = h.filter(x => x.title !== "Honor roll"), roll = h.filter(x => x.title === "Honor roll");
