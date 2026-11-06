@@ -94,6 +94,8 @@ p { max-width: 68ch; }
 .statchart { width: 100%; height: auto; display: block; }
 .statchart text { font-family: var(--body); fill: var(--ink); font-size: 11px; }
 .statchart .lab { fill: var(--muted); font-weight: 600; }
+.statchart .lab.on { fill: var(--ink); font-weight: 700; }
+.ksum { font-size: 13px; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .sec { font-size: 12.5px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
 .path { display: flex; flex-wrap: wrap; gap: 4px; font-size: 12.5px; }
 .path span { border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; background: var(--bg); }
@@ -250,16 +252,28 @@ const STR_ICON = {
 const strChips = st => (st || []).map(s => `<span class="str"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">${s.kind === "weapon" ? (ICON[s.line] || "") : (STR_ICON[s.kind] || "")}</svg>${esc(s.label)}</span>`).join("");
 const reqChips = rc => rc.map(c => `<span class="req" title="${esc(c.label)} rank ${esc(c.rank)} required"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">${ICON[c.line] || ""}</svg><span>${esc(c.label)}</span><b>${esc(c.rank)}</b></span>`).join("");
 const SLOT = {boss: "Boss-killer", mapclear: "Map-clearer", support: "Support"};
-const SLOTDESC = {boss: "planned from Lv 1, best gear &amp; skills", mapclear: "basic path, Iron gear, no planning", support: "healer / supporter / dancer"};
+const SLOTDESC = {boss: "planned from Lv 1, best gear &amp; skills", mapclear: "basic path, Iron gear, no planning", support: "healer / supporter"};
+// Joe 2026-11-06: Support description precise to the class (Apsara supports by Dancing; the others by white magic)
+const slotDesc = (slot, cls) => slot === "support" && cls === "The Apsara" ? "dancer / supporter" : SLOTDESC[slot];
+// Joe 2026-11-06: highlight the stats that matter for the role. Boss-killer: the "holy trinity" (Str or Mag, Dex, Spd).
+// Map-clearer: the sum of its meaningful stats (HP, Str or Mag, Spd, Dex, Def, Res; Lck/Cha left out).
+function keyStats(p) { const atk = (p.weapon && /magic/.test(p.weapon.line)) ? "MAG" : "STR";
+  if (p.slot === "boss") return {keys: [atk, "DEX", "SPD"], label: "Holy trinity"};
+  if (p.slot === "mapclear") return {keys: ["HP", atk, "SPD", "DEX", "DEF", "RES"], label: "Meaningful stats"};
+  return null; }
+function keyStatLine(p) { const ks = keyStats(p); if (!ks) return "";
+  const v = ks.keys.map(k => { const s = p.stats.find(t => t.k === k); return s ? s.m : 0; });
+  const tot = v.reduce((a, b) => a + b, 0);
+  return `<div class="ksum"><b>${ks.label}</b>: ${ks.keys.map((k, i) => `${k === "HP" ? k : k.charAt(0) + k.slice(1).toLowerCase()} ${Math.round(v[i])}`).join(" + ")} = <b>${Math.round(tot)}</b></div>`; }
 const main = document.getElementById("main"), toc = document.getElementById("toc");
 function page(id, no, html) { const s = document.createElement("section"); s.className = "page"; s.id = id; s.innerHTML = `<div class="pageno">PAGE ${no}</div>` + html; main.appendChild(s); }
-function statChart(stats) {
+function statChart(stats, hl) {
   const W = 340, rowH = 17, top = 4, left = 34, right = 40, max = Math.max(80, ...stats.map(s => s.m + s.sd));
   const x = v => left + (W - left - right) * v / max;
   let g = "";
-  stats.forEach((s, i) => { const y = top + i * rowH;
-    g += `<g><title>${s.k} ${s.m} ± ${s.sd} at Lv 60</title>
-      <text class="lab" x="0" y="${y + 11}">${s.k}</text>
+  stats.forEach((s, i) => { const y = top + i * rowH, on = !hl || hl.includes(s.k);
+    g += `<g${on ? "" : ` opacity="0.35"`}><title>${s.k} ${s.m} ± ${s.sd} at Lv 60</title>
+      <text class="lab${hl && on ? " on" : ""}" x="0" y="${y + 11}">${s.k}</text>
       <rect x="${left}" y="${y + 3}" width="${Math.max(0, x(s.m) - left)}" height="10" rx="2" fill="var(--bar)"></rect>
       <line x1="${x(Math.max(0, s.m - s.sd))}" x2="${x(s.m + s.sd)}" y1="${y + 8}" y2="${y + 8}" stroke="var(--whisker)" stroke-width="1.5"></line>
       <line x1="${x(Math.max(0, s.m - s.sd))}" x2="${x(Math.max(0, s.m - s.sd))}" y1="${y + 5}" y2="${y + 11}" stroke="var(--whisker)" stroke-width="1.5"></line>
@@ -278,7 +292,7 @@ function optPanel(p, cls) {
   const extra = p.planned ? `<div class="sub">Planned path: trained for the exam ranks by Lv 50.</div>` : (p.extra > 0 ? `<div class="sub">⚠ On its default class progression the exam ranks fall short by ~${p.extra} levels of extra training at Lv 50 (map-clearer score cut 3% per level).</div>` : `<div class="sub">Its default class progression meets the exam ranks by Lv 50.</div>`) + (p.start_inferred ? `<div class="sub">Starting class inferred from weapon boons (not in the game data we have).</div>` : "");
   return `<article class="opt" aria-label="${esc(SLOT[p.slot])} pick for ${esc(cls)}">
     <div class="top"><img src="${p.portrait}" alt="${esc(p.name)} portrait">
-      <div><div class="slot">${SLOT[p.slot]} · ${SLOTDESC[p.slot]}</div><div class="who">${esc(p.name)}</div>
+      <div><div class="slot">${SLOT[p.slot]} · ${slotDesc(p.slot, cls)}</div><div class="who">${esc(p.name)}</div>
       <div class="fit">Fitness <b>${p.score.toFixed(0)}</b> / 100 · joins ${esc(p.join)}${p.merge > 1 ? ` · ${p.merge} route versions merge` : ""}</div>${badge}</div></div>
     <div class="glance"><div class="sec ka">Key abilities</div>
       <div class="wpn"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">${ICON[p.weapon.line] || ""}</svg>
@@ -286,7 +300,7 @@ function optPanel(p, cls) {
       ${p.loadout ? `<div class="wa lo">${esc(p.loadout)}</div>` : ""}
       <div class="chips">${p.abilities.map(a => `<span class="chip k-${a.t}" tabindex="0" data-tip="${esc(a.d)}"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">${KIND[a.t] || ""}</svg>${esc(a.n)}</span>`).join("")}</div>
       <div class="sub">Hover or tap a chip to see what it does.</div></div>
-    <div><div class="sec">Lv 60 stats (mean ± 1 SD)</div>${statChart(p.stats)}</div>
+    <div><div class="sec">Lv 60 stats (mean ± 1 SD)</div>${statChart(p.stats, keyStats(p) && keyStats(p).keys)}${keyStatLine(p)}</div>
     <div><div class="sec">Build history</div><div class="path">${path}</div></div>
     <div><div class="sec">Rank milestones on the basic path</div><table><thead><tr><th>Line</th><th>Lv35</th><th>Lv45</th><th>Lv50</th><th>Lv60</th></tr></thead><tbody>${ranks}</tbody></table>${extra}</div>
     <div><div class="sec">Right before the breakpoints</div><table><thead><tr><th></th><th>HP</th><th>Str</th><th>Mag</th><th>Spd</th><th>Dex</th><th>Def</th><th>Res</th><th>Lck</th></tr></thead>
