@@ -378,15 +378,17 @@ ${rosterChart(D.page10)}
   const big = h.filter(x => x.title !== "Honor roll"), roll = h.filter(x => x.title === "Honor roll");
   const card = x => `<div class="hon ${x.title === "Valedictorian" ? "gold" : "silver"}"><img src="${x.portrait}" alt="${esc(x.name)}">
     <div><div class="ht">${esc(x.title)}</div><div class="hn">${esc(x.name)}</div><div class="hw">#1 in ${x.n} slots: ${esc(x.wins)}</div></div></div>`;
-  const s = document.createElement("section"); s.className = "page"; s.id = "honors";
-  s.innerHTML = `<div class="pageno">COMMENCEMENT</div><h2>Honors</h2><p class="lede">Counted before the no-duplicates rule: who finished #1 in the most of the 20 ranked slots (8 Boss-killer, 8 Map-clearer, 4 Support; runner-up picks don’t count). Ties go to more Boss-killer wins, then more Map-clearer wins, then the highest single score.</p>
+  const s = document.createElement("section"); s.className = "page"; s.id = "page-11";
+  s.innerHTML = `<div class="pageno">PAGE 11</div><h2>Honors</h2><p class="lede">Counted before the no-duplicates rule: who finished #1 in the most of the 20 ranked slots (8 Boss-killer, 8 Map-clearer, 4 Support; runner-up picks don’t count). Ties go to more Boss-killer wins, then more Map-clearer wins, then the highest single score.</p>
     <div class="hons">${big.map(card).join("")}</div>
-    ${roll.length ? `<div class="sec" style="margin-top:14px">Honor roll</div><ul class="abl">${roll.map(x => `<li><b>${esc(x.name)}</b> — #1 in ${x.n}: ${esc(x.wins)}</li>`).join("")}</ul>` : ""}
-    <h2 style="margin-top:26px">The Student Council</h2><p class="lede">Eight seats, one per Divine class, nobody twice — drafted in order: three Boss-killers, then three Map-clearers, then two Supports. Each seat takes the best remaining character in the best remaining class.</p>
+    ${roll.length ? `<div class="sec" style="margin-top:14px">Honor roll</div><ul class="abl">${roll.map(x => `<li><b>${esc(x.name)}</b> — #1 in ${x.n}: ${esc(x.wins)}</li>`).join("")}</ul>` : ""}`;
+  main.appendChild(s);
+  const s2 = document.createElement("section"); s2.className = "page"; s2.id = "page-12";
+  s2.innerHTML = `<div class="pageno">PAGE 12</div><h2>The Student Council</h2><p class="lede">Eight seats, one per Divine class, nobody twice — drafted in order: three Boss-killers, then three Map-clearers, then two Supports. Each seat takes the best remaining character in the best remaining class.</p>
     <div class="council">${(D.council || []).map(x => `<div class="cs"><div class="rk">${x.seat}</div><img src="${x.portrait}" alt="${esc(x.name)}"><div><div class="n">${esc(x.name)}</div><div class="c">${esc(x.cls)}<span class="tag ${x.role === "Support" ? "u" : x.role === "Boss-killer" ? "b" : ""}">${x.role}</span></div><div class="fs">score ${x.score.toFixed(0)}</div></div></div>`).join("")}</div>`;
-  main.appendChild(s); })();
+  main.appendChild(s2); })();
 // toc
-toc.innerHTML = [["page-1", "1 · How it works"], ...D.classes.map((c, i) => ["page-" + (i + 2), (i + 2) + " · " + c.name.replace("The ", "")]), ["page-10", "10 · Roll Call"], ["honors", "Honors & Council"]]
+toc.innerHTML = [["page-1", "1 · How it works"], ...D.classes.map((c, i) => ["page-" + (i + 2), (i + 2) + " · " + c.name.replace("The ", "")]), ["page-10", "10 · Roll Call"], ["page-11", "11 \u00b7 Honors"], ["page-12", "12 \u00b7 Student Council"]]
   .map(([h, t]) => `<a href="#${h}">${esc(t)}</a>`).join("");
 </script>
 </body>
