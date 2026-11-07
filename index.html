@@ -294,7 +294,7 @@ function statChart(stats, hl) {
   return `<svg class="statchart" viewBox="0 0 ${W} ${top + stats.length * rowH + 2}" role="img" aria-label="Level 60 stats with plus or minus one standard deviation">${g}</svg>`;
 }
 const lvTxt = x => x < 1 ? "under 1 level" : (Math.round(x) === 1 ? "~1 level" : `~${Math.round(x)} levels`);
-$1 { const k = ["HP","STR","MAG","SPD","DEX","DEF","RES","LCK"]; return `<tr><td>Lv ${lv}</td>${k.map(x => `<td>${s[x] ?? ""}</td>`).join("")}</tr>`; }
+function snapRow(lv, s) { const k = ["HP","STR","MAG","SPD","DEX","DEF","RES","LCK"]; return `<tr><td>Lv ${lv}</td>${k.map(x => `<td>${s[x] ?? ""}</td>`).join("")}</tr>`; }
 function optPanel(p, cls) {
   if (!p) return `<div class="opt"><div class="sub">No eligible character left for this slot.</div></div>`;
   if (p.none === "support") return `<article class="opt nosup"><div class="top"><div><div class="slot">Support · game changers</div><div class="who">None</div></div></div><p class="sub" style="margin-top:10px"><b>No Support pick for ${esc(cls)}.</b> This class can’t use white magic and can’t Dance, so it adds nothing to support. A unit’s own support skills (Ursula’s storage access, Goliath’s Pin Down, ally auras) work the same in any class, so they aren’t credited to this one. For support, look at The Apsara (Dance) or The Avatar, The Godhand and The Trident (white magic, uses ×3).</p></article>`;
@@ -411,7 +411,7 @@ ${rosterChart(D.page10)}
     ${roll.length ? `<div class="sec" style="margin-top:14px">Honor roll</div><ul class="abl">${roll.map(x => `<li><b>${esc(x.name)}</b> — #1 in ${x.n}: ${esc(x.wins)}</li>`).join("")}</ul>` : ""}`;
   main.appendChild(s);
   const s2 = document.createElement("section"); s2.className = "page"; s2.id = "page-12";
-  s2.innerHTML = `<div class="pageno">PAGE 12</div><h2>The Student Council</h2><p class="lede">Eight seats, one per Divine class, nobody twice — drafted in order: three Boss-killers, then three Map-clearers, then two Supports. $1 Because each page drafts by its own rule, a character can sit in a different class here than on its class page or in the Roll Call.</p>
+  s2.innerHTML = `<div class="pageno">PAGE 12</div><h2>The Student Council</h2><p class="lede">Eight seats, one per Divine class, nobody twice — drafted in order: three Boss-killers, then three Map-clearers, then two Supports. Each seat takes the best remaining character in the best remaining class. Because each page drafts by its own rule, a character can sit in a different class here than on its class page or in the Roll Call.</p>
     <div class="council">${(D.council || []).map(x => `<div class="cs"><div class="rk">${x.seat}</div><img src="${x.portrait}" alt="${esc(x.name)}"><div><div class="n">${esc(x.name)}</div><div class="c">${esc(x.cls)}<span class="tag ${x.role === "Support" ? "u" : x.role === "Boss-killer" ? "b" : ""}">${x.role}</span></div><div class="fs">score ${x.score.toFixed(0)}</div></div></div>`).join("")}</div>`;
   main.appendChild(s2); })();
 // ---- page 13: Which Stats Matter? -- Jacobian of the role score w.r.t. the core stats, as a diverging heat map
@@ -425,10 +425,10 @@ ${rosterChart(D.page10)}
     return `<tbody><tr class="grp"><th colspan="${ST.length + 1}">${role}</th></tr>${rows.map(r => `<tr><th scope="row" class="rl"><img src="${r.portrait}" alt="">${esc(r.cls.replace("The ", ""))}<span>${esc(r.name)}</span></th>${ST.map(k => cell(r, k)).join("")}</tr>`).join("")}</tbody>`; };
   const s = document.createElement("section"); s.className = "page"; s.id = "page-13";
   s.innerHTML = `<div class="pageno">PAGE 13</div><h2>Which Stats Matter?</h2>
-    <p class="lede">How much one more point of each stat would raise the score of each class’s top Boss-killer and top Map-clearer: $1 Rows are each class’s #1 before the no-duplicates rule, so they can differ from the class-page picks. Each cell is score-index points per +1 stat (the 0–100 index before it becomes a percentile), found by re-running the simulator with that stat 2 points lower and 2 points higher. Blue helps, red hurts, gray doesn’t matter.</p>
+    <p class="lede">How much one more point of each stat would raise the score of each class’s top Boss-killer and top Map-clearer: the Jacobian of the scoring model. Rows are each class’s #1 before the no-duplicates rule, so they can differ from the class-page picks. Each cell is score-index points per +1 stat (the 0–100 index before it becomes a percentile), found by re-running the simulator with that stat 2 points lower and 2 points higher. Blue helps, red hurts, gray doesn’t matter.</p>
     <div class="jacwrap"><table class="jac"><thead><tr><th></th>${ST.map(k => `<th scope="col">${LAB[k]}</th>`).join("")}</tr></thead>${block("Boss-killer")}${block("Map-clearer")}</table></div>
     <div class="jleg"><span>−${mx.toFixed(1)}</span><span class="bar"></span><span>+${mx.toFixed(1)}</span><span class="sub">score points per +1 stat</span></div>
-    <p class="sub">HP, Def and Res read 0 for a Boss-killer who already survives the boss combat for sure (their survival discount is flat). $1 the boss fight is one player phase with reach assumed, so Mov reads 0 for Boss-killers. Str and Mag also raise gambit damage. Blaze Arts use the in-game Atk numbers, so they don’t move with stats.</p>`;
+    <p class="sub">HP, Def and Res read 0 for a Boss-killer who already survives the boss combat for sure (their survival discount is flat). Mov only enters the Map-clearer’s mobility term; the boss fight is one player phase with reach assumed, so Mov reads 0 for Boss-killers. Str and Mag also raise gambit damage. Blaze Arts use the in-game Atk numbers, so they don’t move with stats.</p>`;
   main.appendChild(s); })();
 // toc
 toc.innerHTML =[["page-1", "1 · How it works"], ...D.classes.map((c, i) => ["page-" + (i + 2), (i + 2) + " · " + c.name.replace("The ", "")]), ["page-10", "10 · Roll Call"], ["page-11", "11 \u00b7 Honors"], ["page-12", "12 \u00b7 Student Council"], ...((D.jacobian || []).length ? [["page-13", "13 \u00b7 Which Stats Matter?"]] : [])]
