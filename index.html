@@ -37,19 +37,20 @@ table.t td { border-bottom: 1px solid var(--grid); padding: 4px 6px; font-varian
 select { font: inherit; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
 .wrap { overflow-x: auto; }
 </style></head><body>
+<nav aria-label="Site"><a href="./"><b>Fortune's Weave engine</b></a><a href="#what">What it does</a><a href="#numbers">Key numbers</a><a href="engine/">Inside the engine</a><a href="character-roles/">Character Roles</a><a href="divine-class-picks/">Divine Class Picks</a></nav>
 <main>
 <div class="kicker">FIRE EMBLEM: FORTUNE'S WEAVE</div>
 <h1>A simulation engine</h1>
 <p class="lede">A computer model of <i>Fire Emblem: Fortune's Weave</i>, built from the game's data. It predicts each character's stats from their growth rates and class path, fights them against level-matched enemies with the game's combat rules, and adds up what each one is good for: killing bosses, clearing maps, supporting the team, and dungeon clashes.</p>
 <p>It was built by an AI model working from guides and data sheets. It has <b>never played the game</b>, so every number below is a prediction. The quickest way to judge it is to compare these numbers with your own playthrough. If something looks wrong, it probably is.</p>
 
-<section class="box"><h2>What it does</h2><ol>
+<section class="box" id="what"><h2>What it does</h2><ol>
 <li><b>Stats.</b> Each level-up, each stat rises with probability <i>character growth + class growth</i>. Following a character's class path level by level gives the expected stats at any level, with the spread (good and bad level-up luck).</li>
 <li><b>Combat.</b> For each fight it tries every weapon, spell and combat art the character can use. It computes Atk, damage, Hit, Crit, attack speed and follow-ups, then the foe's counter.</li>
 <li><b>Scenarios.</b> The fights are run in four situations: a map (8 attacks, then an enemy phase), a boss turn, support actions, and dungeon clashes. Weapon durability and spell uses are spent across a whole map.</li>
 <li><b>Scores.</b> Each character × class gets a score per role. Characters are then ranked, and the eight Divine classes are filled.</li></ol></section>
 
-<section class="box"><h2>Does this match your game? Key numbers</h2>
+<section class="box" id="numbers"><h2>Does this match your game? Key numbers</h2>
 <p class="small">Level 60 characters on their <b>default class path</b> (the classes the game puts them in) with <b>Iron-tier weapons</b>, against Hard-mode enemies at level 63. Medians across the 60 characters, each in its best class for map play. Check them against a combat forecast in your own game; per-character numbers are on <a href="engine/#forecast">the engine page</a>.</p>
 <div class="stats"><div class="stat"><b>98.7%</b><span>our Hit vs. a regular enemy</span><span class="chk">Typical late-game forecast: are your units hitting this often with Iron weapons?</span></div><div class="stat"><b>24.1%</b><span>our Crit vs. a regular enemy</span><span class="chk">Crit = (Dex + Lck)/2 + weapon − foe Lck/2.</span></div><div class="stat"><b>31</b><span>damage per hit</span><span class="chk">vs. an average enemy HP of 67.6.</span></div><div class="stat"><b>38%</b><span>of characters double the typical enemy</span><span class="chk">Follow-up when your attack speed beats the foe's by 4.</span></div><div class="stat"><b>32.2%</b><span>chance to kill a regular enemy in one attack</span><span class="chk">One attack plus any follow-up. Planned builds with arts and refined gear: 100%.</span></div><div class="stat"><b>76.8% / 28.9</b><span>enemy counter: Hit / damage</span><span class="chk">Enemy crit is assumed 30 points lower than ours.</span></div><div class="stat"><b>12.5%</b><span>chance to die when two enemies attack (as handed over)</span><span class="chk">Planned builds: 0.2%.</span></div><div class="stat"><b>76%</b><span>of planned builds one-shot a dungeon foe</span><span class="chk">Clashes: 67.1 damage per action, 22.6 HP lost per turn in the spotlight.</span></div></div>
 <h3 style="margin-top:18px">Typical level 60 character (default path, median)</h3><p class="mono">HP 70 · STR 47.6 · MAG 23 · SPD 39.3 · DEX 40.3 · DEF 32.3 · RES 25.3 · LCK 30.4</p>
